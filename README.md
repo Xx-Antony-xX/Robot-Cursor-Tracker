@@ -2,7 +2,7 @@
 
 This is a responsive Design built using **HTML**, **CSS** and **JS**. It features a robot following the cursor.
 
-🔗 **Live Preview**: [CodePen - Simple Landing Page](https://codepen.io/Antony-Deepak/pen/raVNZvj)
+🔗 **Live Preview**: [CodePen - Robot Cursor Tracker](https://codepen.io/Antony-Deepak/pen/raVNZvj)
 
 ## 📌 Features
 
