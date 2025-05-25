@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GSAP Robot Cursor Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            cursor: none;
+        }
+        
+        .robot-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 400px;
+        }
+        
+        .robot-head {
+            position: relative;
+            width: 200px;
+            height: 180px;
+            background: linear-gradient(145deg, #e0e0e0, #c0c0c0);
+            border-radius: 50px 50px 30px 30px;
+            margin: 0 auto;
+            box-shadow: 
+                inset 5px 5px 15px rgba(0,0,0,0.1),
+                inset -5px -5px 15px rgba(255,255,255,0.7),
+                0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .robot-antenna {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 30px;
+            background: #666;
+            border-radius: 2px;
+        }
+        
+        .robot-antenna::after {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
+            background: #ff4757;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #ff4757;
+            animation: blink 2s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 90% { opacity: 1; }
+            95% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+        
+        .eyes-container {
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 140px;
+            height: 60px;
+        }
+        
+        .eye {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: #fff;
+            border-radius: 50%;
+            border: 3px solid #333;
+            overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .eye.left {
+            left: 0;
+        }
+        
+        .eye.right {
+            right: 0;
+        }
+        
+        .pupil {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle at 30% 30%, #4a90e2, #2c5aa0);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.1s ease;
+        }
+        
+        .pupil::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 6px;
+            height: 6px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 50%;
+        }
+        
+        .robot-mouth {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 30px;
+            background: #333;
+            border-radius: 0 0 30px 30px;
+            overflow: hidden;
+        }
+        
+        .mouth-light {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #00ff88, #00d4ff, #00ff88);
+            animation: mouthGlow 3s infinite;
+        }
+        
+        @keyframes mouthGlow {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+        
+        .robot-body {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 200px;
+            background: linear-gradient(145deg, #d0d0d0, #b0b0b0);
+            border-radius: 20px;
+            box-shadow: 
+                inset 5px 5px 15px rgba(0,0,0,0.1),
+                inset -5px -5px 15px rgba(255,255,255,0.7),
+                0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .robot-panel {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 80px;
+            background: #222;
+            border-radius: 10px;
+            border: 2px solid #444;
+        }
+        
+        .panel-light {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00ff88;
+        }
+        
+        .panel-light:nth-child(1) { top: 10px; left: 15px; animation: panelBlink 1s infinite; }
+        .panel-light:nth-child(2) { top: 10px; right: 15px; animation: panelBlink 1.5s infinite; }
+        .panel-light:nth-child(3) { bottom: 10px; left: 15px; animation: panelBlink 2s infinite; }
+        .panel-light:nth-child(4) { bottom: 10px; right: 15px; animation: panelBlink 1.2s infinite; }
+        
+        @keyframes panelBlink {
+            0%, 70% { opacity: 1; }
+            85% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+        
+        .robot-arms {
+            position: absolute;
+            top: 50px;
+            width: 100%;
+            height: 100px;
+        }
+        
+        .arm {
+            position: absolute;
+            width: 30px;
+            height: 80px;
+            background: linear-gradient(145deg, #c0c0c0, #a0a0a0);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .arm.left {
+            left: -40px;
+            transform-origin: top center;
+        }
+        
+        .arm.right {
+            right: -40px;
+            transform-origin: top center;
+        }
+        
+        .custom-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #ff6b6b, #ee5a24);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1000;
+            box-shadow: 0 0 20px #ff6b6b;
+            transform: translate(-50%, -50%);
+        }
+        
+        .cursor-trail {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background: rgba(255, 107, 107, 0.6);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 999;
+        }
+        
+        .instructions {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            text-align: center;
+            font-size: 1.2rem;
+            opacity: 0.8;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .distance-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 1rem;
+            background: rgba(0,0,0,0.3);
+            padding: 10px 20px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body>
+    <div class="instructions">
+        Move your mouse around - the robot will follow your cursor!
+    </div>
+    
+    <div class="robot-container" id="robot">
+        <div class="robot-head" id="robotHead">
+            <div class="robot-antenna"></div>
+            
+            <div class="eyes-container">
+                <div class="eye left">
+                    <div class="pupil" id="leftPupil"></div>
+                </div>
+                <div class="eye right">
+                    <div class="pupil" id="rightPupil"></div>
+                </div>
+            </div>
+            
+            <div class="robot-mouth">
+                <div class="mouth-light"></div>
+            </div>
+        </div>
+        
+        <div class="robot-body">
+            <div class="robot-panel">
+                <div class="panel-light"></div>
+                <div class="panel-light"></div>
+                <div class="panel-light"></div>
+                <div class="panel-light"></div>
+            </div>
+            
+            <div class="robot-arms">
+                <div class="arm left" id="leftArm"></div>
+                <div class="arm right" id="rightArm"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="custom-cursor" id="cursor"></div>
+    <div class="distance-indicator" id="distanceIndicator">
+        Distance: <span id="distanceValue">0</span>px
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script>
+        const robot = document.getElementById('robot');
+        const robotHead = document.getElementById('robotHead');
+        const leftPupil = document.getElementById('leftPupil');
+        const rightPupil = document.getElementById('rightPupil');
+        const leftArm = document.getElementById('leftArm');
+        const rightArm = document.getElementById('rightArm');
+        const cursor = document.getElementById('cursor');
+        const distanceValue = document.getElementById('distanceValue');
+        
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let robotCenterX = window.innerWidth / 2;
+        let robotCenterY = window.innerHeight / 2;
+        
+        // Cursor trail effect
+        const trailElements = [];
+        const trailLength = 10;
+        
+        for (let i = 0; i < trailLength; i++) {
+            const trail = document.createElement('div');
+            trail.className = 'cursor-trail';
+            document.body.appendChild(trail);
+            trailElements.push({
+                element: trail,
+                x: mouseX,
+                y: mouseY
+            });
+        }
+        
+        // Mouse movement handler
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            // Update custom cursor
+            gsap.to(cursor, {
+                x: mouseX,
+                y: mouseY,
+                duration: 0.1,
+                ease: 'power2.out'
+            });
+            
+            updateRobotLook();
+        });
+        
+        function updateRobotLook() {
+            // Calculate robot center position
+            const robotRect = robot.getBoundingClientRect();
+            robotCenterX = robotRect.left + robotRect.width / 2;
+            robotCenterY = robotRect.top + robotRect.height / 2;
+            
+            // Calculate angle and distance
+            const deltaX = mouseX - robotCenterX;
+            const deltaY = mouseY - robotCenterY;
+            const angle = Math.atan2(deltaY, deltaX);
+            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            
+            // Update distance indicator
+            distanceValue.textContent = Math.round(distance);
+            
+            // Rotate robot head based on mouse position
+            const headRotation = angle * (180 / Math.PI) * 0.1; // Subtle head movement
+            gsap.to(robotHead, {
+                rotation: headRotation,
+                duration: 0.3,
+                ease: 'power2.out'
+            });
+            
+            // Move pupils to look at cursor
+            const maxPupilMove = 12; // Maximum pupil movement in pixels
+            const pupilX = Math.cos(angle) * Math.min(maxPupilMove, distance * 0.05);
+            const pupilY = Math.sin(angle) * Math.min(maxPupilMove, distance * 0.05);
+            
+            gsap.to([leftPupil, rightPupil], {
+                x: pupilX,
+                y: pupilY,
+                duration: 0.2,
+                ease: 'power2.out'
+            });
+            
+            // Animate arms based on distance
+            const armRotation = Math.sin(distance * 0.01) * 10;
+            gsap.to(leftArm, {
+                rotation: -armRotation,
+                duration: 0.5,
+                ease: 'power2.out'
+            });
+            
+            gsap.to(rightArm, {
+                rotation: armRotation,
+                duration: 0.5,
+                ease: 'power2.out'
+            });
+            
+            // Scale robot slightly based on distance
+            const scale = 1 + Math.sin(distance * 0.005) * 0.05;
+            gsap.to(robot, {
+                scale: scale,
+                duration: 0.3,
+                ease: 'power2.out'
+            });
+        }
+        
+        // Animate cursor trail
+        function animateTrail() {
+            trailElements.forEach((trail, index) => {
+                const delay = index * 0.02;
+                
+                gsap.to(trail, {
+                    x: mouseX,
+                    y: mouseY,
+                    duration: 0.3 + delay,
+                    ease: 'power2.out'
+                });
+                
+                // Update trail element position
+                gsap.set(trail.element, {
+                    x: trail.x,
+                    y: trail.y,
+                    opacity: (trailLength - index) / trailLength * 0.8,
+                    scale: (trailLength - index) / trailLength
+                });
+                
+                // Smooth trail following
+                trail.x += (mouseX - trail.x) * (0.1 + index * 0.02);
+                trail.y += (mouseY - trail.y) * (0.1 + index * 0.02);
+            });
+            
+            requestAnimationFrame(animateTrail);
+        }
+        
+        // Robot idle animations
+        function idleAnimations() {
+            // Subtle breathing effect
+            gsap.to(robot, {
+                y: '+=5',
+                duration: 2,
+                ease: 'power2.inOut',
+                yoyo: true,
+                repeat: -1
+            });
+            
+            // Occasional blink
+            setInterval(() => {
+                if (Math.random() > 0.7) {
+                    gsap.to([leftPupil, rightPupil], {
+                        scaleY: 0.1,
+                        duration: 0.1,
+                        yoyo: true,
+                        repeat: 1,
+                        ease: 'power2.inOut'
+                    });
+                }
+            }, 2000);
+            
+            // Random antenna light intensity
+            setInterval(() => {
+                const antenna = document.querySelector('.robot-antenna::after');
+                gsap.to('.robot-antenna', {
+                    filter: `brightness(${0.8 + Math.random() * 0.4})`,
+                    duration: 0.5,
+                    ease: 'power2.inOut'
+                });
+            }, 1500);
+        }
+        
+        // Initialize
+        function init() {
+            // Initial robot entrance animation
+            gsap.from(robot, {
+                scale: 0,
+                rotation: 180,
+                duration: 1.5,
+                ease: 'back.out(1.7)',
+                delay: 0.5
+            });
+            
+            // Animate instructions
+            gsap.from('.instructions', {
+                y: -50,
+                opacity: 0,
+                duration: 1,
+                ease: 'power3.out',
+                delay: 1
+            });
+            
+            // Start animations
+            idleAnimations();
+            animateTrail();
+            updateRobotLook();
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            updateRobotLook();
+        });
+        
+        // Start everything
+        window.addEventListener('load', init);
+        
+        // Add click interaction
+        document.addEventListener('click', (e) => {
+            // Robot reaction to clicks
+            gsap.to(robot, {
+                scale: 1.1,
+                duration: 0.1,
+                yoyo: true,
+                repeat: 1,
+                ease: 'power2.out'
+            });
+            
+            // Pupil dilation effect
+            gsap.to([leftPupil, rightPupil], {
+                scale: 1.3,
+                duration: 0.2,
+                yoyo: true,
+                repeat: 1,
+                ease: 'power2.out'
+            });
+            
+            // Create click ripple effect
+            const ripple = document.createElement('div');
+            ripple.style.cssText = `
+                position: fixed;
+                left: ${e.clientX}px;
+                top: ${e.clientY}px;
+                width: 0;
+                height: 0;
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 50%;
+                pointer-events: none;
+                z-index: 1001;
+                transform: translate(-50%, -50%);
+            `;
+            
+            document.body.appendChild(ripple);
+            
+            gsap.to(ripple, {
+                width: '100px',
+                height: '100px',
+                opacity: 0,
+                duration: 0.6,
+                ease: 'power2.out',
+                onComplete: () => ripple.remove()
+            });
+        });
+    </script>
+</body>
+</html>
